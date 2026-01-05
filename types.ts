@@ -10,6 +10,8 @@ export enum ServiceType {
   INSURANCE = 'BHYT',
 }
 
+export type Language = 'vi' | 'en';
+
 export interface DepartmentRecommendation {
   deptCode: string;
   deptName: string;

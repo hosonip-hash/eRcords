@@ -1,13 +1,16 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Camera, ScanFace, CheckCircle2, UserCheck } from 'lucide-react';
-import { PatientData } from '../types';
+import { PatientData, Language } from '../types';
+import { translations } from '../translations';
 
 interface Props {
   onVerified: (data: PatientData) => void;
   onBack: () => void;
+  lang: Language;
 }
 
-export const Step2Identity: React.FC<Props> = ({ onVerified, onBack }) => {
+export const Step2Identity: React.FC<Props> = ({ onVerified, onBack, lang }) => {
+  const t = translations[lang];
   const videoRef = useRef<HTMLVideoElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [scanning, setScanning] = useState(false);
@@ -75,9 +78,9 @@ export const Step2Identity: React.FC<Props> = ({ onVerified, onBack }) => {
     <div className="flex flex-col items-center w-full max-w-2xl mx-auto p-4 animate-fade-in">
       <div className="w-full flex justify-between items-center mb-6">
         <button onClick={onBack} className="text-slate-500 hover:text-slate-800 text-sm font-medium">
-          &larr; Quay lại
+          &larr; {t.back}
         </button>
-        <h2 className="text-2xl font-bold text-slate-800">Xác Thực Danh Tính</h2>
+        <h2 className="text-2xl font-bold text-slate-800">{t.identity_title}</h2>
         <div className="w-16"></div> 
       </div>
 
@@ -96,7 +99,7 @@ export const Step2Identity: React.FC<Props> = ({ onVerified, onBack }) => {
             <div className="w-full h-1 bg-green-400 shadow-[0_0_15px_rgba(74,222,128,0.8)] animate-scan-line opacity-80"></div>
             <div className="absolute top-4 left-4 text-green-400 font-mono text-xs flex items-center gap-2">
               <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-              PROCESSING...
+              {t.processing}
             </div>
             <div className="absolute inset-0 border-2 border-green-500/30"></div>
             <div className="absolute top-0 left-0 w-16 h-16 border-t-4 border-l-4 border-green-500 rounded-tl-xl"></div>
@@ -110,7 +113,7 @@ export const Step2Identity: React.FC<Props> = ({ onVerified, onBack }) => {
         {!scanning && step !== 'COMPLETE' && (
            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
              <div className="bg-black/40 backdrop-blur-sm px-6 py-3 rounded-full text-white font-medium">
-                {step === 'ID_SCAN' ? 'Đưa CCCD/Thẻ BHYT vào khung hình' : 'Nhìn thẳng vào camera để xác thực'}
+                {step === 'ID_SCAN' ? t.camera_instr_id : t.camera_instr_face}
              </div>
            </div>
         )}
@@ -127,16 +130,16 @@ export const Step2Identity: React.FC<Props> = ({ onVerified, onBack }) => {
       <div className="w-full bg-white p-6 rounded-xl shadow-sm border border-slate-100">
         {step === 'ID_SCAN' && (
           <div className="text-center">
-            <p className="text-slate-600 mb-4">Hệ thống sẽ tự động trích xuất thông tin từ thẻ của bạn.</p>
+            <p className="text-slate-600 mb-4">{t.system_extract}</p>
             <button 
               onClick={handleScanID}
               disabled={scanning}
               className="w-full py-4 bg-medical-600 hover:bg-medical-700 text-white rounded-xl font-semibold flex items-center justify-center gap-3 transition-colors disabled:opacity-50"
             >
-              {scanning ? 'Đang quét...' : (
+              {scanning ? t.scanning_id : (
                 <>
                   <Camera className="w-5 h-5" />
-                  Chụp Ảnh Giấy Tờ
+                  {t.btn_scan_id}
                 </>
               )}
             </button>
@@ -147,18 +150,18 @@ export const Step2Identity: React.FC<Props> = ({ onVerified, onBack }) => {
           <div className="text-center animate-fade-in">
              <div className="flex items-center justify-center gap-2 mb-4 p-3 bg-blue-50 rounded-lg text-blue-800 text-sm">
                 <UserCheck className="w-4 h-4" />
-                Đã nhận diện: <strong>{mockData.name}</strong> - {mockData.cccd}
+                {t.face_match}: <strong>{mockData.name}</strong> - {mockData.cccd}
              </div>
-            <p className="text-slate-600 mb-4">Vui lòng xác thực khuôn mặt để mở hồ sơ y tế.</p>
+            <p className="text-slate-600 mb-4">{t.face_instr}</p>
             <button 
               onClick={handleScanFace}
               disabled={scanning}
               className="w-full py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold flex items-center justify-center gap-3 transition-colors disabled:opacity-50"
             >
-              {scanning ? 'Đang đối chiếu...' : (
+              {scanning ? t.scanning_id : (
                 <>
                   <ScanFace className="w-5 h-5" />
-                  Xác Thực FaceID
+                  {t.btn_scan_face}
                 </>
               )}
             </button>
@@ -167,13 +170,13 @@ export const Step2Identity: React.FC<Props> = ({ onVerified, onBack }) => {
 
         {step === 'COMPLETE' && (
            <div className="text-center animate-fade-in">
-              <h3 className="text-xl font-bold text-slate-800 mb-1">Xác thực thành công!</h3>
-              <p className="text-slate-500 mb-6">Danh tính của bạn đã được xác nhận với hệ thống quốc gia.</p>
+              <h3 className="text-xl font-bold text-slate-800 mb-1">{t.success_verified}</h3>
+              <p className="text-slate-500 mb-6">{t.verified_msg}</p>
               <button 
                 onClick={finish}
                 className="w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold shadow-lg shadow-green-200 transition-all"
               >
-                Tiếp Tục Đến Sàng Lọc
+                {t.btn_continue}
               </button>
            </div>
         )}

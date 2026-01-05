@@ -1,19 +1,23 @@
 import React from 'react';
 import { CheckCircle, Download, RotateCcw } from 'lucide-react';
-import { BookingState } from '../types';
+import { BookingState, Language } from '../types';
+import { translations } from '../translations';
 
 interface Props {
   data: BookingState;
   onReset: () => void;
+  lang: Language;
 }
 
-export const Step4Summary: React.FC<Props> = ({ data, onReset }) => {
+export const Step4Summary: React.FC<Props> = ({ data, onReset, lang }) => {
+  const t = translations[lang];
   
   const generatePayload = () => {
     return {
       action: "BOOKING_CREATE",
       timestamp: new Date().toISOString(),
       source: "KIOSK_01",
+      language: lang,
       patient_data: {
         cccd: data.patientData?.cccd || "",
         face_token: data.patientData?.faceToken || "manual_override",
@@ -34,13 +38,12 @@ export const Step4Summary: React.FC<Props> = ({ data, onReset }) => {
     <div className="flex flex-col items-center w-full max-w-4xl mx-auto p-6 animate-fade-in">
       <div className="bg-green-100 text-green-700 px-6 py-2 rounded-full font-medium flex items-center gap-2 mb-8">
         <CheckCircle className="w-5 h-5" />
-        Đăng ký thành công!
+        {t.summary_success}
       </div>
 
-      <h1 className="text-3xl font-bold text-slate-800 mb-2">Số Thứ Tự Của Bạn: <span className="text-medical-600 text-4xl ml-2">#A102</span></h1>
+      <h1 className="text-3xl font-bold text-slate-800 mb-2">{t.ticket_number} <span className="text-medical-600 text-4xl ml-2">#A102</span></h1>
       <p className="text-slate-500 mb-8 text-center max-w-lg">
-        Mời bạn đến <strong>{data.recommendation?.deptName}</strong> (Tầng 2).<br/>
-        Vui lòng theo dõi bảng điện tử tại khu vực chờ.
+        {t.guide_text} <strong>{data.recommendation?.deptName}</strong> {t.floor}.<br/>
       </p>
 
       <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -50,14 +53,14 @@ export const Step4Summary: React.FC<Props> = ({ data, onReset }) => {
           
           <div className="flex justify-between items-start mb-6">
              <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">BỆNH NHÂN</p>
-                <h3 className="text-xl font-bold text-slate-800">{data.patientData?.name || "KHÁCH VÃNG LAI"}</h3>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t.patient}</p>
+                <h3 className="text-xl font-bold text-slate-800">{data.patientData?.name || t.guest}</h3>
                 <p className="text-slate-500 text-sm">{data.patientData?.cccd}</p>
              </div>
              <div className="text-right">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">HÌNH THỨC</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t.type}</p>
                 <span className={`inline-block px-2 py-1 rounded text-xs font-bold ${data.serviceType === 'BHYT' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                  {data.serviceType === 'BHYT' ? 'Bảo Hiểm Y Tế' : 'Khám Dịch Vụ'}
+                  {data.serviceType === 'BHYT' ? t.type_insurance : t.type_service}
                 </span>
              </div>
           </div>
@@ -65,14 +68,14 @@ export const Step4Summary: React.FC<Props> = ({ data, onReset }) => {
           <div className="border-t border-dashed border-slate-200 my-4"></div>
 
           <div className="mb-6">
-             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">KHOA KHÁM BỆNH</p>
+             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t.dept}</p>
              <div className="flex items-center gap-3">
                <div className="w-10 h-10 rounded-lg bg-medical-50 flex items-center justify-center text-medical-600 font-bold">
                  {data.recommendation?.deptCode.substring(0,2)}
                </div>
                <div>
                  <p className="font-bold text-slate-800">{data.recommendation?.deptName}</p>
-                 <p className="text-xs text-slate-500">Lý do: {data.symptoms.substring(0, 30)}...</p>
+                 <p className="text-xs text-slate-500">{data.symptoms.substring(0, 30)}...</p>
                </div>
              </div>
           </div>
@@ -81,7 +84,7 @@ export const Step4Summary: React.FC<Props> = ({ data, onReset }) => {
             {/* Mock Barcode */}
             <div className="h-12 w-full bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Code_39_symbol.svg/1200px-Code_39_symbol.svg.png')] bg-cover opacity-80 mix-blend-multiply"></div>
           </div>
-          <p className="text-center text-[10px] text-slate-400 mt-1">Scan at counter</p>
+          <p className="text-center text-[10px] text-slate-400 mt-1">{t.scan_at_counter}</p>
         </div>
 
         {/* JSON Payload View */}
@@ -109,7 +112,7 @@ export const Step4Summary: React.FC<Props> = ({ data, onReset }) => {
           className="flex items-center gap-2 px-8 py-3 bg-white border border-slate-200 text-slate-600 rounded-full hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm"
         >
           <RotateCcw className="w-4 h-4" />
-          Tiếp nhận bệnh nhân mới
+          {t.btn_reset}
         </button>
       </div>
     </div>

@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { Stethoscope, Activity, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
 import { analyzeSymptoms } from '../services/geminiService';
-import { DepartmentRecommendation } from '../types';
+import { DepartmentRecommendation, Language } from '../types';
+import { translations } from '../translations';
 
 interface Props {
   onRecommendation: (symptoms: string, rec: DepartmentRecommendation) => void;
   onBack: () => void;
+  lang: Language;
 }
 
-export const Step3Triage: React.FC<Props> = ({ onRecommendation, onBack }) => {
+export const Step3Triage: React.FC<Props> = ({ onRecommendation, onBack, lang }) => {
+  const t = translations[lang];
   const [symptoms, setSymptoms] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<DepartmentRecommendation | null>(null);
@@ -17,7 +20,8 @@ export const Step3Triage: React.FC<Props> = ({ onRecommendation, onBack }) => {
     if (!symptoms.trim()) return;
     setLoading(true);
     try {
-      const rec = await analyzeSymptoms(symptoms);
+      // Pass language to the service
+      const rec = await analyzeSymptoms(symptoms, lang);
       setResult(rec);
     } catch (e) {
       console.error(e);
@@ -36,11 +40,11 @@ export const Step3Triage: React.FC<Props> = ({ onRecommendation, onBack }) => {
     <div className="flex flex-col w-full max-w-3xl mx-auto p-4 animate-fade-in h-full">
       <div className="flex items-center mb-6">
         <button onClick={onBack} className="text-slate-500 hover:text-slate-800 text-sm font-medium mr-4">
-          &larr; Quay lại
+          &larr; {t.back}
         </button>
         <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
           <Stethoscope className="w-6 h-6 text-medical-600" />
-          Sàng Lọc Thông Minh
+          {t.triage_title}
         </h2>
       </div>
 
@@ -49,18 +53,18 @@ export const Step3Triage: React.FC<Props> = ({ onRecommendation, onBack }) => {
         <div className="flex flex-col gap-4">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
             <label className="block text-sm font-medium text-slate-700 mb-3">
-              Mô tả triệu chứng của bạn
+              {t.triage_label}
             </label>
             <textarea
               value={symptoms}
               onChange={(e) => setSymptoms(e.target.value)}
-              placeholder="Ví dụ: Tôi bị đau bụng dữ dội vùng dưới bên phải, kèm sốt nhẹ và buồn nôn..."
+              placeholder={t.triage_placeholder}
               className="w-full h-40 p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-medical-500 focus:border-transparent outline-none resize-none text-slate-700 placeholder-slate-400 bg-slate-50"
             ></textarea>
             
             <div className="mt-4 flex flex-wrap gap-2">
                <span className="text-xs text-slate-400">Gợi ý nhanh:</span>
-               {['Đau đầu, chóng mặt', 'Ho kéo dài, tức ngực', 'Đau dạ dày', 'Sốt xuất huyết'].map(tag => (
+               {t.quick_tags.map((tag: string) => (
                  <button 
                   key={tag}
                   onClick={() => setSymptoms(tag)}
@@ -79,12 +83,12 @@ export const Step3Triage: React.FC<Props> = ({ onRecommendation, onBack }) => {
               {loading ? (
                 <>
                   <Sparkles className="w-5 h-5 animate-spin" />
-                  AI Đang Phân Tích...
+                  {t.analyzing}
                 </>
               ) : (
                 <>
                   <Activity className="w-5 h-5" />
-                  Phân Tích Triệu Chứng
+                  {t.btn_analyze}
                 </>
               )}
             </button>
@@ -98,17 +102,17 @@ export const Step3Triage: React.FC<Props> = ({ onRecommendation, onBack }) => {
                 <div className="w-16 h-16 bg-medical-100 rounded-full flex items-center justify-center mb-4">
                   <Sparkles className="w-8 h-8 text-medical-500 animate-pulse-slow" />
                 </div>
-                <h3 className="text-lg font-medium text-slate-700">Đang tham khảo ý kiến chuyên gia...</h3>
-                <p className="text-slate-400 text-sm mt-2 max-w-xs">Hệ thống đang đối chiếu triệu chứng với cơ sở dữ liệu y khoa.</p>
+                <h3 className="text-lg font-medium text-slate-700">{t.analyzing}</h3>
+                <p className="text-slate-400 text-sm mt-2 max-w-xs">{t.analyzing_desc}</p>
              </div>
           ) : result ? (
             <div className="flex-1 bg-white rounded-2xl shadow-lg border border-medical-100 overflow-hidden flex flex-col animate-fade-in-up">
               <div className="bg-medical-50 p-6 border-b border-medical-100">
                 <span className="inline-block px-3 py-1 bg-medical-200 text-medical-800 text-xs font-bold rounded-full mb-3">
-                  GỢI Ý TỪ AI
+                  {t.result_suggestion}
                 </span>
                 <h3 className="text-2xl font-bold text-slate-800">{result.deptName}</h3>
-                <p className="text-slate-500 text-sm mt-1">Mã khoa: <span className="font-mono">{result.deptCode}</span></p>
+                <p className="text-slate-500 text-sm mt-1">CODE: <span className="font-mono">{result.deptCode}</span></p>
               </div>
               
               <div className="p-6 flex-1 flex flex-col">
@@ -117,7 +121,7 @@ export const Step3Triage: React.FC<Props> = ({ onRecommendation, onBack }) => {
                     <Activity className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold text-slate-700 mb-1">Lý do gợi ý</h4>
+                    <h4 className="text-sm font-semibold text-slate-700 mb-1">{t.reason_label}</h4>
                     <p className="text-slate-600 text-sm leading-relaxed">{result.reasoning}</p>
                   </div>
                 </div>
@@ -129,20 +133,20 @@ export const Step3Triage: React.FC<Props> = ({ onRecommendation, onBack }) => {
                       style={{ width: `${result.confidence}%` }}
                     ></div>
                   </div>
-                  <span className="text-xs font-medium text-slate-500">{result.confidence}% Phù hợp</span>
+                  <span className="text-xs font-medium text-slate-500">{result.confidence}% {t.confidence}</span>
                 </div>
 
                 <div className="mt-auto pt-4 border-t border-slate-100">
                   <div className="flex items-start gap-2 mb-4 p-3 bg-yellow-50 rounded-lg border border-yellow-100">
                     <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5 shrink-0" />
-                    <p className="text-xs text-yellow-700">Kết quả này chỉ mang tính chất gợi ý điều phối. Bác sĩ chuyên khoa sẽ khám chi tiết.</p>
+                    <p className="text-xs text-yellow-700">{t.disclaimer}</p>
                   </div>
 
                   <button 
                     onClick={handleConfirm}
                     className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-colors group"
                   >
-                    Xác Nhận & Đặt Lịch
+                    {t.btn_confirm}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </button>
                 </div>
@@ -153,7 +157,7 @@ export const Step3Triage: React.FC<Props> = ({ onRecommendation, onBack }) => {
                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4 text-slate-300">
                   <Stethoscope className="w-8 h-8" />
                </div>
-               <p className="text-slate-400">Nhập triệu chứng bên trái và nhấn "Phân tích" để nhận gợi ý khoa khám bệnh.</p>
+               <p className="text-slate-400">{t.empty_state}</p>
             </div>
           )}
         </div>
