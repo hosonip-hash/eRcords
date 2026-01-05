@@ -1,0 +1,7 @@
+{
+  "name": "AI-HIS Smart Receptionist",
+  "description": "A smart medical receptionist interface using Gemini for symptom triage and patient identity verification simulation.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
